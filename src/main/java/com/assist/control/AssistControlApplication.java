@@ -4,10 +4,10 @@ import org.springframework.boot.SpringApplication;
 import org.springframework.boot.autoconfigure.SpringBootApplication;
 
 @SpringBootApplication
-public class ControlAsistenciasApplication {
+public class AssistControlApplication {
 
 	public static void main(String[] args) {
-		SpringApplication.run(ControlAsistenciasApplication.class, args);
+		SpringApplication.run(AssistControlApplication.class, args);
 	}
 
 }
