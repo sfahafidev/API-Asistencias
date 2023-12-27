@@ -1,9 +1,6 @@
 package com.assist.control.domain;
 
-import jakarta.persistence.Entity;
-import jakarta.persistence.GeneratedValue;
-import jakarta.persistence.GenerationType;
-import jakarta.persistence.Id;
+import jakarta.persistence.*;
 import lombok.Getter;
 import lombok.Setter;
 
@@ -16,12 +13,16 @@ public class Workday {
 
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
-    private Long idWorkday;
+    private Long id;
 
     private String type;
     private LocalDate date;
     private LocalTime timeOfEntry;
     private LocalTime timeOfExit;
     private Double totalTimeDay;
+    private Boolean approved;
+
+    @ManyToOne(fetch = FetchType.LAZY, cascade = CascadeType.ALL)
+    private Employee employee;
 
 }
