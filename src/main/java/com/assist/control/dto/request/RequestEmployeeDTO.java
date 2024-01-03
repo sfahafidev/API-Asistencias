@@ -7,6 +7,7 @@ import lombok.Setter;
 @Getter @Setter
 public class RequestEmployeeDTO {
 
+    private Long idEmployee;
     @NotBlank(message = "El nombre es obligatorio")
     private String name;
     @NotBlank(message = "El apellido es obligatorio")

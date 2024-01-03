@@ -22,7 +22,7 @@ public class Workday {
     private Double totalTimeDay;
     private Boolean approved;
 
-    @ManyToOne(fetch = FetchType.LAZY, cascade = CascadeType.ALL)
+    @ManyToOne(cascade = CascadeType.ALL)
     private Employee employee;
 
 }
