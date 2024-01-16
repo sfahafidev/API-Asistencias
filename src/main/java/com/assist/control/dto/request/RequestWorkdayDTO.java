@@ -21,10 +21,8 @@ public class RequestWorkdayDTO {
     @NotNull(message = "La fecha es obligatoria")
     @JsonFormat(pattern="yyyy-MM-dd")
     private LocalDate date;
-    @NotNull(message = "La hora de entrada es obligatoria")
     @JsonFormat(pattern="HH:mm")
     private LocalTime timeOfEntry;
-    //@NotNull(message = "La hora de salida es obligatoria")
     @JsonFormat(pattern="HH:mm")
     private LocalTime timeOfExit;
 
