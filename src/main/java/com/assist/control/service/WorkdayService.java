@@ -40,7 +40,7 @@ public class WorkdayService implements WorkdayInterface {
 
         //Workday workday = modelMapper.map(requestWorkday, Workday.class);
         Workday workday = RequestWorkdayDTO.workdayMap(requestWorkday);
-        workday.setTotalTimeDay(calculateTotalHours(requestWorkday.getTimeOfEntry(), requestWorkday.getTimeOfExit()));
+        workday.setTotalHours(calculateTotalHours(requestWorkday.getTimeOfEntry(), requestWorkday.getTimeOfExit()));
         workday.setApproved(false);
         workday.setEmployee(employee);
 
@@ -53,9 +53,15 @@ public class WorkdayService implements WorkdayInterface {
     }
 
     private Double calculateTotalHours(LocalTime timeOfEntry, LocalTime timeOfExit){
-        long tota = Duration.between(timeOfEntry, timeOfExit).getSeconds();
-        return (double)tota/3600;
+        long totalSeconds = Duration.between(timeOfEntry, timeOfExit).getSeconds();
+        double totalHours = (double)totalSeconds/3600;
+
+        if (totalHours > 8){ return totalHours - 1; }
+
+        return totalHours;
     }
+
+
 
     @Override
     public ResponseWorkdayDTO editWorkday(RequestWorkdayDTO requestWorkday) {
@@ -79,7 +85,7 @@ public class WorkdayService implements WorkdayInterface {
 
     @Override
     public List<Workday> findWorkdaysByEmployee(Long idEmployee) {
-        return null;
+        return workdayRepository.findByEmployeeId(idEmployee);
     }
 
 }

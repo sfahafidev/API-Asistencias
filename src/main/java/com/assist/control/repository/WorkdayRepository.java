@@ -13,9 +13,8 @@ public interface WorkdayRepository extends JpaRepository<Workday, Long> {
 
     List<Workday> findByEmployeeId(Long idEmployee);
 
-    /*default List<Workday> queryDslFilterWorkdays(RequestWorkdayFilterDTO requestWorkdayFilter){
-        QWorkday qWorkday = QWorkday.workday;
+    default List<Workday> queryDslFilterWorkdays(RequestWorkdayFilterDTO requestWorkdayFilter){
         return null;
-    }*/
+    }
 
 }

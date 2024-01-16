@@ -1,5 +1,6 @@
 package com.assist.control.domain;
 
+import com.fasterxml.jackson.annotation.JsonProperty;
 import jakarta.persistence.*;
 import lombok.Getter;
 import lombok.Setter;
@@ -19,10 +20,11 @@ public class Workday {
     private LocalDate date;
     private LocalTime timeOfEntry;
     private LocalTime timeOfExit;
-    private Double totalTimeDay;
+    private Double totalHours;
     private Boolean approved;
 
-    @ManyToOne(cascade = CascadeType.ALL)
+    @ManyToOne(cascade = CascadeType.ALL, fetch = FetchType.LAZY)
+    @JsonProperty(access = JsonProperty.Access.WRITE_ONLY)
     private Employee employee;
 
 }
