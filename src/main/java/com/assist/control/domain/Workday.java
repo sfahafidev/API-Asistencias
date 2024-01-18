@@ -16,12 +16,14 @@ public class Workday {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
 
-    private String type;
+    @OneToOne
+    private KindOfShift shift;
     private LocalDate date;
-    private LocalTime timeOfEntry;
-    private LocalTime timeOfExit;
+    private LocalTime timeOfArrival;
+    private LocalTime departureTime;
     private Double totalHours;
-    private Boolean approved;
+    private boolean approved;
+
 
     @ManyToOne(cascade = CascadeType.ALL, fetch = FetchType.LAZY)
     @JsonProperty(access = JsonProperty.Access.WRITE_ONLY)

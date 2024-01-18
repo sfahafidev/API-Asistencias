@@ -1,6 +1,5 @@
 package com.assist.control.dto.request;
 
-import com.assist.control.domain.TypeWorkday;
 import com.assist.control.domain.Workday;
 import com.fasterxml.jackson.annotation.JsonFormat;
 import jakarta.validation.constraints.NotBlank;
@@ -17,22 +16,22 @@ public class RequestWorkdayDTO {
     @NotNull(message = "El ID es obligatorio")
     private Long idEmployee;
     @NotBlank(message = "El tipo de jornada es obligatoria")
-    private String type;
+    private String kindOkShift;
     @NotNull(message = "La fecha es obligatoria")
     @JsonFormat(pattern="yyyy-MM-dd")
     private LocalDate date;
     @JsonFormat(pattern="HH:mm")
-    private LocalTime timeOfEntry;
+    private LocalTime timeOfArrival;
     @JsonFormat(pattern="HH:mm")
-    private LocalTime timeOfExit;
+    private LocalTime departureTime;
 
     public static Workday workdayMap(RequestWorkdayDTO requestWorkdayDTO){
         Workday workday = new Workday();
 
-        workday.setType(TypeWorkday.getType(requestWorkdayDTO.type).toString());
+        //workday.setShift();
         workday.setDate(requestWorkdayDTO.getDate());
-        workday.setTimeOfEntry(requestWorkdayDTO.getTimeOfEntry());
-        workday.setTimeOfExit(requestWorkdayDTO.getTimeOfExit());
+        workday.setTimeOfArrival(requestWorkdayDTO.getTimeOfArrival());
+        workday.setDepartureTime(requestWorkdayDTO.getDepartureTime());
 
         return  workday;
     }
