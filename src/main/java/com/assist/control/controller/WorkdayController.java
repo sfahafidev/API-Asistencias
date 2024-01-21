@@ -22,7 +22,7 @@ public class WorkdayController {
     @PostMapping("/workday")
     public ResponseEntity<ResponseWorkdayDTO> addWorkdayToEmployee(@RequestBody @Valid RequestWorkdayDTO request){
 
-        ResponseWorkdayDTO response = workdayInterface.setWorkdayToEmployee(request);
+        ResponseWorkdayDTO response = workdayInterface.addWorkdayToEmployee(request);
 
         return ResponseEntity.status(HttpStatus.CREATED).body(response);
     }

@@ -37,7 +37,7 @@ public class WorkdayService implements WorkdayInterface {
 
 
     @Override
-    public ResponseWorkdayDTO setWorkdayToEmployee(RequestWorkdayDTO request) {
+    public ResponseWorkdayDTO addWorkdayToEmployee(RequestWorkdayDTO request) {
 
         Employee employee = employeeValidators.validateEmployee(request.getIdEmployee());
 
@@ -46,13 +46,13 @@ public class WorkdayService implements WorkdayInterface {
 
         KindOfShift shift = workdayValidator.findShift(request.getKindOkShift());
         double totalHoursPerDay = workdayValidator.calculateTotalHours(request.getTimeOfArrival(), request.getDepartureTime());
-        List<Workday> currentDaysOfTheWeek = workdayValidator.getWorkdaysOfCurrentWeek(request);
+        List<Workday> currentDaysOfTheWeek = workdayValidator.getCurrentDaysOfTheWeek(request.getDate());
 
         workdayValidator.validateTotalHoursWorkday(request.getKindOkShift(), totalHoursPerDay);
 
         workdayValidator.validateWorkdaysForDay(workdays, request.getKindOkShift(), totalHoursPerDay);
 
-        workdayValidator.calculateDaysOffCurrentWeek(currentDaysOfTheWeek);
+        workdayValidator.calculateCurrentDaysOffWeek(currentDaysOfTheWeek);
 
         workdayValidator.validateTotalHoursOfWeek(currentDaysOfTheWeek, totalHoursPerDay);
 
@@ -70,8 +70,6 @@ public class WorkdayService implements WorkdayInterface {
 
         return response;
     }
-
-
 
     @Override
     public ResponseWorkdayDTO editWorkday(RequestWorkdayDTO requestWorkday) {

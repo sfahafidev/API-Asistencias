@@ -2,7 +2,6 @@ package com.assist.control.validators;
 
 import com.assist.control.domain.KindOfShift;
 import com.assist.control.domain.Workday;
-import com.assist.control.dto.request.RequestWorkdayDTO;
 import com.assist.control.repository.KindOfShiftRepository;
 import com.assist.control.repository.WorkdayRepository;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -56,7 +55,7 @@ public class WorkdayValidator {
                 .orElseThrow(() -> new RuntimeException("El tipo de jornada indicado no existe"));
     }
 
-    public void validateWorkdaysForDay(List<Workday> workdays, String kindOfWorkday, double totalHoursDay){
+    public void validateWorkdaysForDay(List<Workday> workdays, String kindOfWorkday, double totalHoursPerDay){
         KindOfShift shift = findShift(kindOfWorkday);
 
         if (!workdays.isEmpty()){
@@ -67,22 +66,21 @@ public class WorkdayValidator {
                     throw new RuntimeException("Ya cargaste un " + x.getShift().getDescription() + " anteriormente");
                 } else if (!x.getShift().isWorking() && !shift.isWorking()) {
                     throw new RuntimeException("No se puede cargar un vacaciones y dia libre el mismo dia");
-                } else if ((x.getTotalHours() + totalHoursDay) > 12) {
+                } else if ((x.getTotalHours() + totalHoursPerDay) > 12) {
                     throw new RuntimeException("Excediste el total de 12 horas por dia");
                 }
             });
         }
     }
 
-    public List<Workday> getWorkdaysOfCurrentWeek(RequestWorkdayDTO request){
-        LocalDate today = request.getDate();
+    public List<Workday> getCurrentDaysOfTheWeek(LocalDate today){
         LocalDate firstDayWeek = today.with(TemporalAdjusters.previousOrSame(DayOfWeek.MONDAY));
         LocalDate lastDayWeek = today.with(TemporalAdjusters.nextOrSame(DayOfWeek.SUNDAY));
 
         return workdayRepository.findByDateBetween(firstDayWeek, lastDayWeek);
     }
 
-    public void calculateDaysOffCurrentWeek(List<Workday> workdaysOfCurrentWeek){
+    public void calculateCurrentDaysOffWeek(List<Workday> workdaysOfCurrentWeek){
         List<Workday> daysOff = workdaysOfCurrentWeek.stream()
                 .filter(x -> x.getShift().getCode().equals(REGULAR_SHIFT))
                 .toList();
