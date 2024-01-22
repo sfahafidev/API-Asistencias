@@ -4,11 +4,11 @@ import com.assist.control.exceptions.errors.ApiError;
 import lombok.Getter;
 
 @Getter
-public class BaseException extends RuntimeException {
+public class BaseRunTimeException extends RuntimeException {
 
     private final ApiError apiError;
 
-    public BaseException(ApiError apiError) {
+    public BaseRunTimeException(ApiError apiError) {
         this.apiError = apiError;
     }
 

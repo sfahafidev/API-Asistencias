@@ -2,7 +2,7 @@ package com.assist.control.validators;
 
 import com.assist.control.domain.KindOfShift;
 import com.assist.control.domain.Workday;
-import com.assist.control.exceptions.BusinessException;
+import com.assist.control.exceptions.BusinessRunTimeException;
 import com.assist.control.exceptions.errors.Errors;
 import com.assist.control.repository.KindOfShiftRepository;
 import com.assist.control.repository.WorkdayRepository;
@@ -38,7 +38,7 @@ public class WorkdayValidator {
         double totalHours = (double)totalSeconds/3600;
 
         if (totalHours > 9) {
-            throw new BusinessException(Errors.REGULAR_SHIFT_ERROR_1);
+            throw new BusinessRunTimeException(Errors.REGULAR_SHIFT_ERROR_1);
         }else if (totalHours > 8 && totalHours <= 9) {
             return totalHours - 1;
         }
@@ -50,9 +50,9 @@ public class WorkdayValidator {
         KindOfShift shift = findShift(kindOfWorkday);
 
         if (shift.getCode().equals(REGULAR_SHIFT) && (totalHoursPerDay < 6 || totalHoursPerDay > 8)) {
-            throw new BusinessException(Errors.REGULAR_SHIFT_ERROR_2);
+            throw new BusinessRunTimeException(Errors.REGULAR_SHIFT_ERROR_2);
         } else if (shift.getCode().equals(OVERTIME) && (totalHoursPerDay < 4 || totalHoursPerDay > 6)) {
-            throw new BusinessException(Errors.OVERTIME_ERROR);
+            throw new BusinessRunTimeException(Errors.OVERTIME_ERROR);
         }
     }
 

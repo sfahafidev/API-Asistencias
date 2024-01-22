@@ -2,9 +2,9 @@ package com.assist.control.exceptions;
 
 import com.assist.control.exceptions.errors.ApiError;
 
-public class BusinessException extends BaseException {
+public class BusinessRunTimeException extends BaseRunTimeException {
 
-    public BusinessException(ApiError apiError) {
+    public BusinessRunTimeException(ApiError apiError) {
         super(apiError);
     }
 }
