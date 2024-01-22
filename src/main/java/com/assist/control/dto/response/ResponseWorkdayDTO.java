@@ -9,8 +9,8 @@ import java.time.LocalDate;
 public class ResponseWorkdayDTO {
 
     private String name;
-    private String type;
+    private String kindOfShift;
     private LocalDate date;
-    private Double totalTimeDay;
+    private Double totalHours;
 
 }

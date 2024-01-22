@@ -2,6 +2,8 @@ package com.assist.control.validators;
 
 import com.assist.control.domain.KindOfShift;
 import com.assist.control.domain.Workday;
+import com.assist.control.exceptions.BusinessException;
+import com.assist.control.exceptions.errors.Errors;
 import com.assist.control.repository.KindOfShiftRepository;
 import com.assist.control.repository.WorkdayRepository;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -19,10 +21,10 @@ public class WorkdayValidator {
 
     private final WorkdayRepository workdayRepository;
     private final KindOfShiftRepository kindOfShiftRepository;
-    private static final String REGULAR_SHIFT = "REGULAR_SHIFT";
-    private static final String OVERTIME = "OVERTIME";
-    private static final String DAY_OFF = "DAY_OFF";
-    private static final String VACATION = "VACATION";
+    private static final String REGULAR_SHIFT = "RS";
+    private static final String OVERTIME = "O";
+    private static final String DAY_OFF = "DO";
+    private static final String VACATION = "V";
 
     @Autowired
     public WorkdayValidator(WorkdayRepository workdayRepository, KindOfShiftRepository kindOfShiftRepository) {
@@ -35,7 +37,11 @@ public class WorkdayValidator {
         long totalSeconds = Duration.between(timeOfEntry, timeOfExit).getSeconds();
         double totalHours = (double)totalSeconds/3600;
 
-        if (totalHours > 8){ return totalHours - 1; }
+        if (totalHours > 9) {
+            throw new BusinessException(Errors.REGULAR_SHIFT_ERROR_1);
+        }else if (totalHours > 8 && totalHours <= 9) {
+            return totalHours - 1;
+        }
 
         return totalHours;
     }
@@ -43,10 +49,10 @@ public class WorkdayValidator {
     public void validateTotalHoursWorkday(String kindOfWorkday, double totalHoursPerDay){
         KindOfShift shift = findShift(kindOfWorkday);
 
-        if (shift.getCode().equals(REGULAR_SHIFT) && totalHoursPerDay < 6 || totalHoursPerDay > 8) {
-            throw new RuntimeException("Las horas cargadas no coinciden con el turno normal");
-        } else if (shift.getCode().equals(OVERTIME) && totalHoursPerDay < 4 || totalHoursPerDay > 6) {
-            throw new RuntimeException("Las horas cargadas no coinciden con el turno extra");
+        if (shift.getCode().equals(REGULAR_SHIFT) && (totalHoursPerDay < 6 || totalHoursPerDay > 8)) {
+            throw new BusinessException(Errors.REGULAR_SHIFT_ERROR_2);
+        } else if (shift.getCode().equals(OVERTIME) && (totalHoursPerDay < 4 || totalHoursPerDay > 6)) {
+            throw new BusinessException(Errors.OVERTIME_ERROR);
         }
     }
 
@@ -61,9 +67,9 @@ public class WorkdayValidator {
         if (!workdays.isEmpty()){
             workdays.forEach(x -> {
                 if (!x.getShift().isWorking() && shift.isWorking() || x.getShift().isWorking() && !shift.isWorking()) {
-                    throw new RuntimeException("No se puede cargar un " + shift.getDescription() + " con " + x.getShift().getDescription());
+                    throw new RuntimeException("No se puede cargar un " + shift.getDescriptionEs() + " con " + x.getShift().getDescriptionEs());
                 } else if (x.getShift().equals(shift)){
-                    throw new RuntimeException("Ya cargaste un " + x.getShift().getDescription() + " anteriormente");
+                    throw new RuntimeException("Ya cargaste un " + x.getShift().getDescriptionEs() + " anteriormente");
                 } else if (!x.getShift().isWorking() && !shift.isWorking()) {
                     throw new RuntimeException("No se puede cargar un vacaciones y dia libre el mismo dia");
                 } else if ((x.getTotalHours() + totalHoursPerDay) > 12) {
@@ -82,7 +88,7 @@ public class WorkdayValidator {
 
     public void calculateCurrentDaysOffWeek(List<Workday> workdaysOfCurrentWeek){
         List<Workday> daysOff = workdaysOfCurrentWeek.stream()
-                .filter(x -> x.getShift().getCode().equals(REGULAR_SHIFT))
+                .filter(x -> x.getShift().getCode().equals(DAY_OFF))
                 .toList();
 
         if (daysOff.size() == 2) {
@@ -92,15 +98,18 @@ public class WorkdayValidator {
 
     public void validateTotalHoursOfWeek(List<Workday> workdaysOfCurrentWeek, double totalHoursDay){
         double totalHoursWeek = 0;
+        long totalShiftWeek = 0;
+
         if (!workdaysOfCurrentWeek.isEmpty()) {
             totalHoursWeek = getTotalHoursWeek(workdaysOfCurrentWeek);
+            totalShiftWeek = getTotalShiftOfWeek(workdaysOfCurrentWeek);
         }
 
-        if(workdaysOfCurrentWeek.size() == 4 && (totalHoursWeek + totalHoursDay) > 48) {
+        if(totalShiftWeek >= 5 && (totalHoursWeek + totalHoursDay) > 48) {
             throw new RuntimeException("Excediste el total de 48 horas semanales");
         }
 
-        if (workdaysOfCurrentWeek.size() == 4 && (totalHoursWeek + totalHoursDay) < 30) {
+        if (totalShiftWeek >= 5 && (totalHoursWeek + totalHoursDay) < 30) {
             throw new RuntimeException("Debes cargar un mínimo de 30 horas por semana");
         }
     }
@@ -110,6 +119,12 @@ public class WorkdayValidator {
                 .filter(w -> w.getTotalHours() != null)
                 .mapToDouble(Workday::getTotalHours)
                 .sum();
+    }
+
+    public long getTotalShiftOfWeek(List<Workday> currentWeek){
+        return currentWeek.stream()
+                .filter(w -> w.getShift().isWorking())
+                .count();
     }
 
 }

@@ -67,6 +67,7 @@ public class WorkdayService implements WorkdayInterface {
 
         ResponseWorkdayDTO response = modelMapper.map(workday, ResponseWorkdayDTO.class);
         response.setName(employee.getName());
+        response.setKindOfShift(workday.getShift().getDescriptionEs());
 
         return response;
     }

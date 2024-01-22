@@ -16,7 +16,7 @@ public class Workday {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
 
-    @OneToOne
+    @ManyToOne
     private KindOfShift shift;
     private LocalDate date;
     private LocalTime timeOfArrival;
