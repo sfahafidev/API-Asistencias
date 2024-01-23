@@ -45,20 +45,23 @@ public class WorkdayService implements WorkdayInterface {
                 .findByEmployeeIdAndDate(request.getIdEmployee(), request.getDate());
 
         KindOfShift shift = workdayValidator.findShift(request.getKindOkShift());
-        double totalHoursPerDay = workdayValidator.calculateTotalHours(request.getTimeOfArrival(), request.getDepartureTime());
-        List<Workday> currentDaysOfTheWeek = workdayValidator.getCurrentDaysOfTheWeek(request.getDate());
+        double totalHoursPerDay = 0;
 
         //TODO: Agregar lógica de jornadas dia libre y vacaciones, solo debe verificar que sea la única jornada del dia
         // y solo debe cargar idEmployee, date y kindOfShift = DO / V
 
-        workdayValidator.validateWorkdaysForDay(workdays, request.getKindOkShift(), totalHoursPerDay);
+        workdayValidator.validateShiftForDay(workdays, shift);
 
-        //if (shift.isWorking()) {}
-        workdayValidator.validateTotalHoursWorkday(request.getKindOkShift(), totalHoursPerDay);
+        if (shift.isWorking()) {
+            totalHoursPerDay = workdayValidator.calculateTotalHours(request.getTimeOfArrival(), request.getDepartureTime());
+            List<Workday> currentDaysOfTheWeek = workdayValidator.getCurrentDaysOfTheWeek(request.getDate());
 
-        workdayValidator.calculateCurrentDaysOffWeek(currentDaysOfTheWeek);
+            workdayValidator.validateTotalHoursWorkday(shift, totalHoursPerDay);
 
-        workdayValidator.validateTotalHoursOfWeek(currentDaysOfTheWeek, totalHoursPerDay);
+            workdayValidator.calculateCurrentDaysOffWeek(currentDaysOfTheWeek);
+
+            workdayValidator.validateTotalHoursOfWeek(currentDaysOfTheWeek, totalHoursPerDay);
+        }
 
         //Workday workday = modelMapper.map(request, Workday.class);
         Workday workday = RequestWorkdayDTO.workdayMap(request);

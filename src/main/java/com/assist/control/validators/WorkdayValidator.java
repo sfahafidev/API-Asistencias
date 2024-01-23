@@ -32,6 +32,7 @@ public class WorkdayValidator {
         this.kindOfShiftRepository = kindOfShiftRepository;
     }
 
+    //TODO: validar que la hora de entrada y salida sean obligatorias cuando sean jornadas laborales
 
     public Double calculateTotalHours(LocalTime timeOfEntry, LocalTime timeOfExit){
         long totalSeconds = Duration.between(timeOfEntry, timeOfExit).getSeconds();
@@ -39,15 +40,14 @@ public class WorkdayValidator {
 
         if (totalHours > 9) {
             throw new BusinessRunTimeException(Errors.REGULAR_SHIFT_ERROR_1);
-        }else if (totalHours > 8 && totalHours <= 9) {
+        }else if (totalHours > 8) { // && totalHours <= 9 - revisar
             return totalHours - 1;
         }
 
         return totalHours;
     }
 
-    public void validateTotalHoursWorkday(String kindOfWorkday, double totalHoursPerDay){
-        KindOfShift shift = findShift(kindOfWorkday);
+    public void validateTotalHoursWorkday(KindOfShift shift, double totalHoursPerDay){
 
         if (shift.getCode().equals(REGULAR_SHIFT) && (totalHoursPerDay < 6 || totalHoursPerDay > 8)) {
             throw new BusinessRunTimeException(Errors.REGULAR_SHIFT_ERROR_2);
@@ -56,15 +56,14 @@ public class WorkdayValidator {
         }
     }
 
-    //TODO: validar que la hora de entrada y salida sean obligatorias cuando sean jornadas laborales
-
     public KindOfShift findShift(String code){
         return kindOfShiftRepository.findByCode(code)
                 .orElseThrow(() -> new RuntimeException("El tipo de jornada indicado no existe"));
     }
 
-    public void validateWorkdaysForDay(List<Workday> workdays, String kindOfWorkday, double totalHoursPerDay){
-        KindOfShift shift = findShift(kindOfWorkday);
+    //TODO: reemplazar todas las RuntimeException. y agregar descripción al catalogo de errores
+
+    public void validateShiftForDay(List<Workday> workdays, KindOfShift shift){
 
         if (!workdays.isEmpty()){
             workdays.forEach(x -> {
@@ -72,7 +71,16 @@ public class WorkdayValidator {
                     throw new RuntimeException("No se puede cargar un " + shift.getDescriptionEs() + " con " + x.getShift().getDescriptionEs());
                 } else if (x.getShift().equals(shift)){
                     throw new RuntimeException("Ya cargaste un " + x.getShift().getDescriptionEs() + " anteriormente");
-                } else if (!x.getShift().isWorking() && !shift.isWorking()) {
+                }
+            });
+        }
+    }
+
+    public void validateTotalHoursMixShift(List<Workday> workdays, KindOfShift shift, double totalHoursPerDay) {
+
+        if (!workdays.isEmpty()){
+            workdays.forEach(x -> {
+                if (!x.getShift().isWorking() && !shift.isWorking()) {
                     throw new RuntimeException("No se puede cargar un vacaciones y dia libre el mismo dia");
                 } else if ((x.getTotalHours() + totalHoursPerDay) > 12) {
                     throw new RuntimeException("Excediste el total de 12 horas por dia");

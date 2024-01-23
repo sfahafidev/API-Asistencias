@@ -22,7 +22,7 @@ public class Workday {
     private LocalTime timeOfArrival;
     private LocalTime departureTime;
     private Double totalHours;
-    private boolean approved;
+    private boolean approved; //TODO: Analizar si es conveniente manejar estados para ver en el front
 
 
     @ManyToOne(cascade = CascadeType.ALL, fetch = FetchType.LAZY)
