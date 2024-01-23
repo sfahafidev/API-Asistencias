@@ -86,10 +86,10 @@ public class ControllerExceptionHandler {
 
     private String getGenericErrorMessageAndCause(Exception ex) {
         if (ex.getCause() != null) {
-            return ex.getCause().toString() + ex.getMessage();
+            return ex.getCause().toString() + " " + ex.getMessage();
         }
 
-        return "Exception" + ex.getMessage();
+        return ex.getMessage();
     }
 
 }

@@ -48,9 +48,13 @@ public class WorkdayService implements WorkdayInterface {
         double totalHoursPerDay = workdayValidator.calculateTotalHours(request.getTimeOfArrival(), request.getDepartureTime());
         List<Workday> currentDaysOfTheWeek = workdayValidator.getCurrentDaysOfTheWeek(request.getDate());
 
-        workdayValidator.validateTotalHoursWorkday(request.getKindOkShift(), totalHoursPerDay);
+        //TODO: Agregar lógica de jornadas dia libre y vacaciones, solo debe verificar que sea la única jornada del dia
+        // y solo debe cargar idEmployee, date y kindOfShift = DO / V
 
         workdayValidator.validateWorkdaysForDay(workdays, request.getKindOkShift(), totalHoursPerDay);
+
+        //if (shift.isWorking()) {}
+        workdayValidator.validateTotalHoursWorkday(request.getKindOkShift(), totalHoursPerDay);
 
         workdayValidator.calculateCurrentDaysOffWeek(currentDaysOfTheWeek);
 

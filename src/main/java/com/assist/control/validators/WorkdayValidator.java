@@ -56,6 +56,8 @@ public class WorkdayValidator {
         }
     }
 
+    //TODO: validar que la hora de entrada y salida sean obligatorias cuando sean jornadas laborales
+
     public KindOfShift findShift(String code){
         return kindOfShiftRepository.findByCode(code)
                 .orElseThrow(() -> new RuntimeException("El tipo de jornada indicado no existe"));
