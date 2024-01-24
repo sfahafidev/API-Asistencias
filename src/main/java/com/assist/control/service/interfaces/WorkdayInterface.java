@@ -9,8 +9,7 @@ import java.util.List;
 
 public interface WorkdayInterface {
 
-    ResponseWorkdayDTO addWorkdayToEmployee(RequestWorkdayDTO requestWorkday);
-    ResponseWorkdayDTO editWorkday(RequestWorkdayDTO requestWorkday);
+    ResponseWorkdayDTO addOrUpdateWorkdayToEmployee(RequestWorkdayDTO requestWorkday);
     void deleteWorkday(Long idWorkday);
     Workday findWorkday(Long idWorkday);
     List<Workday> filterWorkdays(RequestWorkdayFilterDTO requestWorkdayFilter);

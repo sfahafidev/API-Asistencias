@@ -6,6 +6,8 @@ import com.assist.control.domain.Workday;
 import com.assist.control.dto.request.RequestWorkdayDTO;
 import com.assist.control.dto.request.RequestWorkdayFilterDTO;
 import com.assist.control.dto.response.ResponseWorkdayDTO;
+import com.assist.control.exceptions.BusinessRunTimeException;
+import com.assist.control.exceptions.errors.Errors;
 import com.assist.control.repository.WorkdayRepository;
 import com.assist.control.service.interfaces.WorkdayInterface;
 import com.assist.control.validators.EmployeeValidators;
@@ -14,7 +16,11 @@ import org.modelmapper.ModelMapper;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
+import java.time.DayOfWeek;
+import java.time.LocalDate;
+import java.time.temporal.TemporalAdjusters;
 import java.util.List;
+import static java.util.Objects.*;
 
 @Service
 public class WorkdayService implements WorkdayInterface {
@@ -37,36 +43,48 @@ public class WorkdayService implements WorkdayInterface {
 
 
     @Override
-    public ResponseWorkdayDTO addWorkdayToEmployee(RequestWorkdayDTO request) {
+    public ResponseWorkdayDTO addOrUpdateWorkdayToEmployee(RequestWorkdayDTO request) {
 
         Employee employee = employeeValidators.validateEmployee(request.getIdEmployee());
 
         List<Workday> workdays = workdayRepository
                 .findByEmployeeIdAndDate(request.getIdEmployee(), request.getDate());
 
-        KindOfShift shift = workdayValidator.findShift(request.getKindOkShift());
+        KindOfShift shift = workdayValidator.findShift(request.getCodeShift());
         double totalHoursPerDay = 0;
-
-        //TODO: Agregar lógica de jornadas dia libre y vacaciones, solo debe verificar que sea la única jornada del dia
-        // y solo debe cargar idEmployee, date y kindOfShift = DO / V
 
         workdayValidator.validateShiftForDay(workdays, shift);
 
+        Workday workday;
+        List<Workday> currentDaysOfTheWeek = getCurrentDaysOfTheWeek(request.getDate());
+
         if (shift.isWorking()) {
+
+            workdayValidator.validateArrivalDepartureWhenShiftIsWorking(request.getTimeOfArrival(), request.getDepartureTime());
+
             totalHoursPerDay = workdayValidator.calculateTotalHours(request.getTimeOfArrival(), request.getDepartureTime());
-            List<Workday> currentDaysOfTheWeek = workdayValidator.getCurrentDaysOfTheWeek(request.getDate());
 
             workdayValidator.validateTotalHoursWorkday(shift, totalHoursPerDay);
 
-            workdayValidator.calculateCurrentDaysOffWeek(currentDaysOfTheWeek);
+            workdayValidator.validateTotalHoursMixShift(workdays, shift, totalHoursPerDay);
 
             workdayValidator.validateTotalHoursOfWeek(currentDaysOfTheWeek, totalHoursPerDay);
+
+            if(isNull(request.getIdWorkday())){
+                workday = Workday.isWorking(request);
+            }else {
+                workday = Workday.update(request);
+            }
+
+            workday.setTotalHours(totalHoursPerDay);
+
+        }else {
+
+            workdayValidator.calculateCurrentDaysOffWeek(currentDaysOfTheWeek);
+
+            workday = Workday.nonWorking(request);
         }
 
-        //Workday workday = modelMapper.map(request, Workday.class);
-        Workday workday = RequestWorkdayDTO.workdayMap(request);
-        workday.setTotalHours(totalHoursPerDay);
-        workday.setApproved(false);
         workday.setEmployee(employee);
         workday.setShift(shift);
 
@@ -79,14 +97,19 @@ public class WorkdayService implements WorkdayInterface {
         return response;
     }
 
-    @Override
-    public ResponseWorkdayDTO editWorkday(RequestWorkdayDTO requestWorkday) {
-        return null;
+    private List<Workday> getCurrentDaysOfTheWeek(LocalDate today){
+        LocalDate firstDayWeek = today.with(TemporalAdjusters.previousOrSame(DayOfWeek.MONDAY));
+        LocalDate lastDayWeek = today.with(TemporalAdjusters.nextOrSame(DayOfWeek.SUNDAY));
+
+        return workdayRepository.findByDateBetween(firstDayWeek, lastDayWeek);
     }
 
     @Override
     public void deleteWorkday(Long idWorkday) {
+        Workday workday = workdayRepository.findById(idWorkday)
+                .orElseThrow(() -> new BusinessRunTimeException(Errors.TYPE_SHIFT_ERROR));
 
+        workdayRepository.delete(workday);
     }
 
     @Override
@@ -95,7 +118,7 @@ public class WorkdayService implements WorkdayInterface {
     }
 
     @Override
-    public List<Workday> filterWorkdays(RequestWorkdayFilterDTO requestWorkdayFilte) {
+    public List<Workday> filterWorkdays(RequestWorkdayFilterDTO requestWorkdayFilter) {
         return null;
     }
 

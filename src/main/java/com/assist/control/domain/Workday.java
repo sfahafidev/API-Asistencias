@@ -1,5 +1,6 @@
 package com.assist.control.domain;
 
+import com.assist.control.dto.request.RequestWorkdayDTO;
 import com.fasterxml.jackson.annotation.JsonProperty;
 import jakarta.persistence.*;
 import lombok.Getter;
@@ -24,9 +25,33 @@ public class Workday {
     private Double totalHours;
     private boolean approved; //TODO: Analizar si es conveniente manejar estados para ver en el front
 
-
     @ManyToOne(cascade = CascadeType.ALL, fetch = FetchType.LAZY)
     @JsonProperty(access = JsonProperty.Access.WRITE_ONLY)
     private Employee employee;
+
+    public static Workday isWorking(RequestWorkdayDTO request) {
+        Workday workday = new Workday();
+        workday.setDate(request.getDate());
+        workday.setTimeOfArrival(request.getTimeOfArrival());
+        workday.setDepartureTime(request.getDepartureTime());
+        workday.setApproved(false);
+        return  workday;
+    }
+
+    public static Workday nonWorking(RequestWorkdayDTO request) {
+        Workday workday = new Workday();
+        workday.setDate(request.getDate());
+        workday.setApproved(false);
+        return  workday;
+    }
+
+    public static Workday update(RequestWorkdayDTO request) {
+        Workday workday = new Workday();
+        workday.setId(request.getIdWorkday());
+        workday.setTimeOfArrival(request.getTimeOfArrival());
+        workday.setDepartureTime(request.getDepartureTime());
+        workday.setApproved(false);
+        return  workday;
+    }
 
 }

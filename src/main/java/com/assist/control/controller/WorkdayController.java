@@ -20,9 +20,9 @@ public class WorkdayController {
     private WorkdayInterface workdayInterface;
 
     @PostMapping("/workday")
-    public ResponseEntity<ResponseWorkdayDTO> addWorkdayToEmployee(@RequestBody @Valid RequestWorkdayDTO request){
+    public ResponseEntity<ResponseWorkdayDTO> addOrUpdateWorkdayToEmployee(@RequestBody @Valid RequestWorkdayDTO request){
 
-        ResponseWorkdayDTO response = workdayInterface.addWorkdayToEmployee(request);
+        ResponseWorkdayDTO response = workdayInterface.addOrUpdateWorkdayToEmployee(request);
 
         return ResponseEntity.status(HttpStatus.CREATED).body(response);
     }
